@@ -9,8 +9,6 @@ from src.mcqsgenerator.MCQGenerator import generate_evaluate_chain
 from langchain_community.callbacks.manager import get_openai_callback
 from src.mcqsgenerator.logger import logging
 
-
-
 RESPONSE_JSON = {
     "1": {
         "mcq": "multiple choice question",
@@ -43,7 +41,8 @@ RESPONSE_JSON = {
         "correct": "correct answer"
     }
 }
-
+json_string = json.dumps(RESPONSE_JSON, indent=4)
+print(json_string)
 # Streamlit UI
 st.title("MCQ Generator With LangChain 🦜️🔗")
 
@@ -68,9 +67,11 @@ if button and uploaded_file is not None and mcq_count and subject and tone:
                     "number": mcq_count,
                     "subject": subject,
                     "tone": tone,
-                    "response_json": json.dumps(RESPONSE_JSON),  
+                    "response_json": json_string,  
                 }
             )
+
+            print("Response from LangChain:", response)  # Debugging
 
         except Exception as e:
             traceback.print_exception(type(e), e, e.__traceback__)
@@ -81,9 +82,7 @@ if button and uploaded_file is not None and mcq_count and subject and tone:
                 
                 if quiz is not None:
                     try:
-                        # Debugging - Print the raw quiz data before parsing
-                        print("Raw Quiz Data:", quiz)
-                        
+                        print("Raw Quiz Data:", quiz)  # Debugging
                         table_data = get_table_data(quiz)
 
                         # Ensure valid data
@@ -96,8 +95,11 @@ if button and uploaded_file is not None and mcq_count and subject and tone:
                             st.error("Error: Unable to parse quiz data.")
 
                     except json.JSONDecodeError as e:
-                        st.error(f"JSON Decode Error: {e}")
+                        st.error(f"Error parsing quiz data: {e}")
                         print("Invalid JSON:", quiz)  # Print invalid JSON for debugging
 
                 else:
-                    st.write(response)
+                    st.write("No quiz data found in the response.")
+            else:
+                st.error("Error: Response is not in the expected format.")
+
